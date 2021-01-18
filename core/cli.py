@@ -24,7 +24,7 @@ class Core():
     def json_flaw(self):
         exploit = self.target + "/.json"
         try:
-            r = requests.get(exploit, headers=headers, timeout=3)
+            r = requests.get(exploit, headers=headers, timeout=30)
             print(f"[!] status code from {exploit} is [{r.status_code}]")
             if r.status_code == 401 or "Permission denied" in r.text or "Firebase error. Please ensure that you spelled the name of your Firebase correctly" in r.text or "has been disabled by a database owner" in r.text:
                 print(f"[!] Target: {exploit} not vulnerable i got {r.status_code} status code.")
