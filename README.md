@@ -33,7 +33,8 @@ python3 fire_at_base.py -t https://foo.firebaseio.com
 ```
 
 
-´´´
+```bash
+
 Author: NullFil3
 Version: v0.1                                             
 
@@ -63,8 +64,7 @@ optional arguments:
 
 
 ************************************************************
-
-´´´
+```
 
 
 
