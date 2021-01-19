@@ -3,6 +3,7 @@ import sys
 import shutil
 import zipfile
 from subprocess import call, DEVNULL
+from utils.parses import verify_url
 import xml.etree.ElementTree as ET
 from core import cli
 
@@ -38,7 +39,7 @@ class Decompiler():
             print(f"==> android path found! {android_path}")
             self.decompile_phase_two(apk_name)
         else:
-            print(f"[+] creating directory: [{android_path}]")
+            print(f"[+] creaing directory: [{android_path}]")
             os.makedirs(android_path)
 
 
@@ -52,7 +53,11 @@ class Decompiler():
         print("==> unpacking files..")
         call([jadx_path, self.file])
         unpack_files = apk_name + "/"
-        shutil.move(unpack_files, android_path)
+        try:
+            shutil.move(unpack_files, android_path)
+
+        except shutil.Error as e:
+            print(f"==> somethig went wrong while move the unpacking file to {android_path}\n The error was {e}")
 
 
     def generate_jar(self,apk_name):
@@ -62,7 +67,10 @@ class Decompiler():
             jar_file = "classes-dex2jar.jar"
             jar_file_new_name = apk_name + ".jar"
             os.rename(jar_file, jar_file_new_name)
-            shutil.move(jar_file_new_name, android_path)
+            try:
+                shutil.move(jar_file_new_name, android_path)
+            except shutil.Error as e:
+                print(f"==> somethig went wrong while move the the jar file {jar_file}\n the error was {e}")
 
     def get_firebase_remote_config(self,apk_name):
         api_key = ""
@@ -94,7 +102,7 @@ class Decompiler():
             print(f"==> Erro while parsing the file at {config_path}:{e}")
 
         if firebase_url != "":
-            fire_url = firebase_url
+            fire_url = parse.verify_url(firebase_url)
             cli_object = cli.Core(fire_url)
             cli_object.remote_config(api_key, app_id, storage_bucket)
             cli_object.is_alive()

